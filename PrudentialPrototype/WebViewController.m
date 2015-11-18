@@ -7,6 +7,7 @@
 //
 
 #import "WebViewController.h"
+#import "DKScrollingTabController.h"
 
 @interface WebViewController () <UIWebViewDelegate>
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
@@ -35,11 +36,16 @@
     [requestObj setHTTPBody:data];
     
     [self.webView loadRequest:requestObj];
+    [self loadScrollingTab];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(BOOL)prefersStatusBarHidden {
+    return YES;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
@@ -52,5 +58,28 @@
             [webView loadRequest:redirectRequest];
         });
     };
+}
+
+- (void)loadScrollingTab {
+    // Add controller as a child view controller (standard view controller containment)
+    DKScrollingTabController *tabController = [[DKScrollingTabController alloc] init];
+    [self addChildViewController:tabController];
+    [tabController didMoveToParentViewController:self];
+    [self.view addSubview:tabController.view];
+    
+    // Customize the tab controller (more options in DKScrollingTabController.h or check the demo)
+    NSLog(@"frame width: %f", self.view.bounds.size.width);
+    tabController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, 30);
+    tabController.buttonPadding = 20;
+    tabController.selection = @[@"PCA", @"PCA Channel Mix", @"PCA Product Mix", @"LBU APE", @"LU Channel Mix", @"LU Product Mix", @"LU Month Trend", @"LU Month Data"];
+    
+    // Set the delegate (conforms to DKScrollingTabControllerDelegate)
+    tabController.delegate = self;
+}
+
+#pragma mark - DKScrollingTabControllerDelegate
+
+- (void)ScrollingTabController:(DKScrollingTabController *)controller selection:(NSUInteger)selection {
+    NSLog(@"Selection controller action button with index=%@", @(selection));
 }
 @end
